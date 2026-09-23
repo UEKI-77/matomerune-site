@@ -48,7 +48,7 @@
     background: var(--paper);
     color: var(--ink);
     font-family: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", sans-serif;
-    line-height: 1.8;
+    line-height: 1.65;
     -webkit-font-smoothing: antialiased;
     padding: 0 20px;
   }
@@ -77,7 +77,6 @@
     font-size: 0.72rem;
     letter-spacing: 0.1em;
     color: var(--accent-2);
-    text-transform: uppercase;
     background: var(--accent-soft);
     border: 1px solid var(--accent-soft-strong);
     border-radius: 100px;
@@ -92,7 +91,7 @@
   }
 
   header.site {
-    padding-block: 1.4rem;
+    padding-block: 0.9rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -111,7 +110,7 @@
     text-decoration: none;
   }
 
-  .brandmark svg { width: 32px; height: 32px; flex: none; }
+  .brandmark img { width: 34px; height: 34px; flex: none; border-radius: 50%; object-fit: cover; }
 
   nav.site a {
     color: var(--ink-soft);
@@ -124,28 +123,28 @@
   nav.site a:hover { color: var(--accent-2); }
 
   .hero {
-    padding-block: 2.4rem 3.6rem;
+    padding-block: 1.2rem 1.8rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 1.6rem;
+    gap: 0.85rem;
     position: relative;
   }
 
   .hero-glow {
     position: absolute;
-    top: -30px;
+    top: -10px;
     left: 50%;
-    width: 480px;
-    height: 480px;
+    width: 360px;
+    height: 360px;
     transform: translateX(-50%);
     background: radial-gradient(circle, var(--accent-soft-strong) 0%, transparent 70%);
     z-index: 0;
     pointer-events: none;
   }
 
-  .hero > * { position: relative; z-index: 1; }
+  .hero > *:not(.hero-glow) { position: relative; z-index: 1; }
 
   .hero-icon {
     width: 108px;
@@ -155,28 +154,28 @@
   }
 
   .hero-mascot {
-    width: clamp(180px, 42vw, 260px);
+    width: clamp(120px, 26vw, 168px);
     height: auto;
-    filter: drop-shadow(0 16px 26px var(--shadow));
+    filter: drop-shadow(0 12px 18px var(--shadow));
     animation: rise-icon 0.6s ease-out backwards;
   }
 
   .hero-lead {
-    font-size: clamp(1.15rem, 3vw, 1.4rem);
+    font-size: clamp(0.95rem, 2.2vw, 1.1rem);
     color: var(--ink-soft);
     font-weight: 500;
   }
 
   .hero h1 {
-    font-size: clamp(2rem, 6vw, 3.1rem);
+    font-size: clamp(1.6rem, 4.6vw, 2.3rem);
     font-weight: 900;
-    line-height: 1.3;
+    line-height: 1.25;
   }
 
   .hero h1 .hi { color: var(--accent-2); }
 
   .hero-tagline {
-    font-size: clamp(1.05rem, 2.6vw, 1.3rem);
+    font-size: clamp(0.92rem, 2vw, 1.05rem);
     color: var(--ink);
     font-weight: 700;
   }
@@ -184,24 +183,24 @@
   .hero-tagline .script { color: var(--accent-2); font-size: 1.3em; padding: 0 0.06em; }
 
   .hero-sub {
-    max-width: 46ch;
+    max-width: 42ch;
     color: var(--ink-soft);
-    font-size: 0.98rem;
+    font-size: 0.86rem;
   }
 
   .cta-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.8rem;
+    gap: 0.7rem;
     justify-content: center;
-    margin-top: 0.4rem;
+    margin-top: 0.1rem;
   }
 
   .btn {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.85rem 1.5rem;
+    padding: 0.62rem 1.3rem;
     border-radius: 100px;
     font-weight: 700;
     font-size: 0.95rem;
@@ -225,39 +224,39 @@
     border-color: var(--line-strong);
   }
 
-  section { padding-block: 3rem; }
+  section { padding-block: 1.6rem; }
   section + section { border-top: 1px solid var(--line); }
 
-  .section-head { max-width: 52ch; margin-bottom: 2rem; }
+  .section-head { max-width: 52ch; margin-bottom: 1rem; }
   .section-head h2 {
-    font-size: clamp(1.5rem, 4vw, 1.9rem);
+    font-size: clamp(1.3rem, 3.2vw, 1.6rem);
     font-weight: 900;
   }
-  .section-head p { color: var(--ink-soft); margin-top: 0.6rem; font-size: 0.98rem; }
+  .section-head p { color: var(--ink-soft); margin-top: 0.4rem; font-size: 0.92rem; }
 
   .problem-list {
     list-style: none;
-    margin: 0 0 1.6rem;
+    margin: 0 0 0.9rem;
     padding: 0;
     display: grid;
-    gap: 0.7rem;
+    gap: 0.5rem;
   }
 
   .problem-list li {
     display: flex;
     align-items: center;
-    gap: 0.8rem;
+    gap: 0.7rem;
     background: var(--paper-raised);
     border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 0.9rem 1.1rem;
-    font-size: 0.95rem;
+    border-radius: 12px;
+    padding: 0.65rem 0.9rem;
+    font-size: 0.9rem;
     color: var(--ink);
   }
 
   .problem-list .tag {
     flex: none;
-    width: 2.1rem; height: 2.1rem;
+    width: 1.8rem; height: 1.8rem;
     border-radius: 50%;
     background: var(--accent-soft);
     display: flex;
@@ -276,107 +275,107 @@
   .steps {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1.2rem;
+    gap: 0.8rem;
   }
 
   .step {
     background: var(--paper-raised);
     border: 1px solid var(--line);
-    border-radius: 18px;
-    padding: 1.6rem 1.3rem;
+    border-radius: 16px;
+    padding: 1rem 0.9rem;
     display: flex;
     flex-direction: column;
-    gap: 0.9rem;
+    gap: 0.45rem;
   }
 
   .step-num {
     font-family: "Caveat", cursive;
     font-weight: 700;
-    font-size: 2.6rem;
+    font-size: 1.9rem;
     line-height: 1;
     color: var(--accent-2);
   }
 
   .step-icon {
-    width: 2.6rem; height: 2.6rem;
+    width: 2.1rem; height: 2.1rem;
     border-radius: 50%;
     background: var(--accent-soft);
     display: flex; align-items: center; justify-content: center;
   }
   .step-icon svg { width: 20px; height: 20px; stroke: var(--accent-2); }
 
-  .step h3 { font-size: 1.05rem; font-weight: 700; }
-  .step p { margin: 0; color: var(--ink-soft); font-size: 0.9rem; }
+  .step h3 { font-size: 0.94rem; font-weight: 700; }
+  .step p { margin: 0; color: var(--ink-soft); font-size: 0.8rem; }
 
   .features {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+    gap: 0.7rem;
   }
 
   .feature {
     display: flex;
-    gap: 0.9rem;
-    padding: 1.1rem;
-    border-radius: 14px;
+    gap: 0.7rem;
+    padding: 0.8rem;
+    border-radius: 12px;
     background: var(--paper-raised);
     border: 1px solid var(--line);
   }
 
   .feature .dot {
     flex: none;
-    width: 0.55rem; height: 0.55rem;
+    width: 0.5rem; height: 0.5rem;
     border-radius: 50%;
     background: var(--accent);
-    margin-top: 0.5rem;
+    margin-top: 0.4rem;
   }
 
-  .feature h3 { font-size: 0.98rem; font-weight: 700; margin-bottom: 0.3rem; }
-  .feature p { margin: 0; font-size: 0.86rem; color: var(--ink-soft); }
+  .feature h3 { font-size: 0.88rem; font-weight: 700; margin-bottom: 0.2rem; }
+  .feature p { margin: 0; font-size: 0.78rem; color: var(--ink-soft); }
 
   .status-band {
     background: linear-gradient(135deg, var(--accent-soft), transparent 60%);
     border: 1px solid var(--accent-soft-strong);
-    border-radius: 20px;
-    padding: 2rem;
+    border-radius: 16px;
+    padding: 1.2rem 1.4rem;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 1.2rem;
+    gap: 0.9rem;
   }
 
   .status-band .label {
     font-family: "JetBrains Mono", monospace;
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     letter-spacing: 0.08em;
     color: var(--accent-2);
     text-transform: uppercase;
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.3rem;
   }
 
-  .status-band p { margin: 0; font-weight: 700; font-size: 1.05rem; max-width: 34ch; }
+  .status-band p { margin: 0; font-weight: 700; font-size: 0.94rem; max-width: 34ch; }
 
   .privacy-card {
     background: var(--paper-raised);
     border: 1px solid var(--line);
-    border-radius: 18px;
-    padding: 2rem;
+    border-radius: 16px;
+    padding: 1.4rem 1.5rem;
   }
 
-  .privacy-card h2 { font-size: 1.3rem; font-weight: 900; margin-bottom: 1.2rem; }
-  .privacy-card h3 { font-size: 1rem; font-weight: 700; margin: 1.5rem 0 0.5rem; }
-  .privacy-card p { margin: 0 0 0.6rem; font-size: 0.92rem; color: var(--ink-soft); }
+  .privacy-card h2 { font-size: 1.15rem; font-weight: 900; margin-bottom: 0.8rem; }
+  .privacy-card h3 { font-size: 0.92rem; font-weight: 700; margin: 0.95rem 0 0.35rem; }
+  .privacy-card p { margin: 0 0 0.45rem; font-size: 0.84rem; color: var(--ink-soft); }
   .privacy-card p:first-of-type { margin-top: 0; }
 
   footer.site {
-    padding-block: 2.4rem 3rem;
+    padding-block: 1.4rem 1.8rem;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.7rem;
     color: var(--ink-faint);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
   }
 
   footer.site .links { display: flex; gap: 1.4rem; flex-wrap: wrap; }
@@ -403,16 +402,7 @@
 
   <header class="site">
     <a class="brandmark" href="#top">
-      <svg viewBox="0 0 64 64" aria-hidden="true">
-        <defs>
-          <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#F5A199"/>
-            <stop offset="1" stop-color="#E15C6B"/>
-          </linearGradient>
-        </defs>
-        <circle cx="32" cy="32" r="32" fill="url(#g1)"/>
-        <path d="M32 20c-4-3-10-3-14 0v20c4-3 10-3 14 0M32 20c4-3 10-3 14 0v20c-4-3-10-3-14 0M32 20v20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+      <img src="icon.webp" alt="マトメルネ">
       マトメルネ
     </a>
     <nav class="site">
