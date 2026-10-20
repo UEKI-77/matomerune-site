@@ -56,9 +56,8 @@
   button, input, select { font: inherit; color: inherit; }
   button { cursor: pointer; }
 
+  .top { position: sticky; top: 0; z-index: 10; background: var(--bg); }
   header {
-    position: sticky; top: 0; z-index: 10;
-    background: var(--bg);
     padding: 12px 16px 8px;
     display: flex; align-items: baseline; gap: 12px;
   }
@@ -124,10 +123,28 @@
   .task .label { flex: 1; min-width: 0; }
   .task .path { display: block; font-size: 12px; color: var(--ink-soft); }
   .task.done .name { text-decoration: line-through; color: var(--ink-faint); }
-  .task input[type="date"] {
+  .task .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .task input[type="date"], .task select.who {
     border: 1px solid var(--line); border-radius: 8px; background: var(--bg);
-    padding: 4px 6px; font-size: 14px; max-width: 140px;
+    padding: 3px 6px; font-size: 13px; max-width: 140px;
   }
+  .task select.who { border-left: 6px solid var(--c, var(--line)); }
+
+  /* メンバー */
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 999px; background: var(--c); flex: none; }
+  .cal-day .dots { display: flex; gap: 2px; }
+  .cal-day .dots .dot { width: 6px; height: 6px; }
+  .filter { display: flex; gap: 6px; overflow-x: auto; padding: 0 16px 8px; background: var(--bg); }
+  .filter button {
+    border: 1px solid var(--line); background: var(--card); border-radius: 999px;
+    padding: 4px 12px; font-size: 14px; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .filter button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+  .member { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px solid var(--line); }
+  .member:first-of-type { border-top: 0; }
+  .member .name { flex: 1; font-weight: 700; }
+  .member .count { color: var(--ink-soft); font-size: 13px; }
   .empty { color: var(--ink-faint); font-size: 14px; padding: 8px 0; }
 
   /* 場所リスト */
@@ -173,10 +190,13 @@
 </style>
 </head>
 <body>
-<header>
-  <h1>大掃除カレンダー</h1>
-  <span class="summary" id="summary"></span>
-</header>
+<div class="top">
+  <header>
+    <h1>大掃除カレンダー</h1>
+    <span class="summary" id="summary"></span>
+  </header>
+  <div class="filter" id="filter" hidden></div>
+</div>
 
 <main>
   <section id="view-calendar"></section>
@@ -194,19 +214,32 @@
 "use strict";
 
 // ---- データ ----
-// { version, places: [{ id, name, spots: [{ id, name, tasks: [{ id, name, date, done }] }] }] }
+// { version, members: [{ id, name, color }],
+//   places: [{ id, name, spots: [{ id, name, tasks: [{ id, name, date, done, assignee }] }] }] }
 const STORAGE_KEY = "oosouji:v1";
+const FILTER_KEY = "oosouji:filter";  // この端末で誰の分を表示するか
+const MAX_MEMBERS = 5;
+const MEMBER_COLORS = ["#E07A5F", "#3D9970", "#8E6CC8", "#D4A017", "#3D8BB8"];
 
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
+function normalize(d) {
+  d.members ||= [];
+  return d;
+}
+
 function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) return normalize(JSON.parse(raw));
   } catch (e) {}
-  return { version: 1, places: [] };
+  return normalize({ version: 1, places: [] });
+}
+
+function loadFilter() {
+  try { return localStorage.getItem(FILTER_KEY) || "all"; } catch (e) { return "all"; }
 }
 
 function saveData() {
@@ -224,6 +257,7 @@ const ui = {
   month: firstOfMonth(new Date()),
   selected: toISO(new Date()),
   open: new Set(),  // 開いている場所・箇所のid
+  filter: loadFilter(),  // "all" | "none"（担当なし） | メンバーid
 };
 
 // ---- 日付ユーティリティ ----
@@ -250,6 +284,16 @@ function allTasks() {
   return out;
 }
 function findTask(id) { return allTasks().find(x => x.task.id === id); }
+function findMember(id) { return data.members.find(m => m.id === id); }
+function matchesFilter(task) {
+  if (ui.filter === "all") return true;
+  if (ui.filter === "none") return !findMember(task.assignee);
+  return task.assignee === ui.filter;
+}
+function filterLabel() {
+  if (ui.filter === "none") return "担当なし";
+  return findMember(ui.filter)?.name;
+}
 function findPlace(id) { return data.places.find(p => p.id === id); }
 function findSpot(id) {
   for (const place of data.places) {
@@ -264,9 +308,25 @@ function esc(s) {
 }
 
 function render() {
-  const tasks = allTasks();
+  // メンバー削除などで存在しなくなった絞り込みは解除
+  if (ui.filter !== "all" && ui.filter !== "none" && !findMember(ui.filter)) ui.filter = "all";
+  if (!data.members.length) ui.filter = "all";
+
+  const tasks = allTasks().filter(x => matchesFilter(x.task));
   const done = tasks.filter(x => x.task.done).length;
-  document.getElementById("summary").textContent = tasks.length ? `完了 ${done} / ${tasks.length}` : "";
+  const who = filterLabel();
+  document.getElementById("summary").textContent =
+    tasks.length ? `${who ? who + " " : ""}完了 ${done} / ${tasks.length}` : "";
+
+  const filterEl = document.getElementById("filter");
+  filterEl.hidden = ui.view !== "calendar" || !data.members.length;
+  if (!filterEl.hidden) {
+    const chip = (value, label, color) =>
+      `<button data-action="filter" data-value="${value}" aria-pressed="${ui.filter === value}">${color ? `<span class="dot" style="--c:${color}"></span>` : ""}${esc(label)}</button>`;
+    filterEl.innerHTML = chip("all", "全員")
+      + data.members.map(m => chip(m.id, m.name, m.color)).join("")
+      + chip("none", "担当なし");
+  }
 
   for (const btn of document.querySelectorAll("nav.tabs button"))
     btn.setAttribute("aria-selected", btn.dataset.view === ui.view);
@@ -278,15 +338,28 @@ function render() {
   if (ui.view === "settings") renderSettings();
 }
 
-function taskRow({ place, spot, task }, { showPath = true, showDate = true } = {}) {
+function assigneeSelect(task) {
+  if (!data.members.length) return "";
+  const current = findMember(task.assignee);
+  return `
+    <select class="who" data-action="assignee" data-id="${task.id}" aria-label="担当" ${current ? `style="--c:${current.color}"` : ""}>
+      <option value="">担当なし</option>
+      ${data.members.map(m => `<option value="${m.id}" ${m === current ? "selected" : ""}>${esc(m.name)}</option>`).join("")}
+    </select>`;
+}
+
+function taskRow({ place, spot, task }, { showPath = true } = {}) {
   return `
     <div class="task ${task.done ? "done" : ""}">
       <input type="checkbox" data-action="toggle" data-id="${task.id}" ${task.done ? "checked" : ""} aria-label="完了">
       <span class="label">
         ${showPath ? `<span class="path">${esc(place.name)} / ${esc(spot.name)}</span>` : ""}
         <span class="name">${esc(task.name)}</span>
+        <span class="meta">
+          <input type="date" data-action="date" data-id="${task.id}" value="${task.date || ""}" aria-label="日付">
+          ${assigneeSelect(task)}
+        </span>
       </span>
-      ${showDate ? `<input type="date" data-action="date" data-id="${task.id}" value="${task.date || ""}" aria-label="日付">` : ""}
       ${showPath ? "" : `<button class="mini-btn" data-action="rename-task" data-id="${task.id}">名前</button>
       <button class="mini-btn del" data-action="delete-task" data-id="${task.id}" aria-label="削除">✕</button>`}
     </div>`;
@@ -294,7 +367,7 @@ function taskRow({ place, spot, task }, { showPath = true, showDate = true } = {
 
 function renderCalendar() {
   const el = document.getElementById("view-calendar");
-  const tasks = allTasks();
+  const tasks = allTasks().filter(x => matchesFilter(x.task));
   const byDate = {};
   for (const x of tasks) if (x.task.date) (byDate[x.task.date] ||= []).push(x);
 
@@ -314,7 +387,12 @@ function renderCalendar() {
     if (iso === ui.selected) cls.push("selected");
     const badge = list.length
       ? `<span class="badge ${left === 0 ? "all-done" : ""}">${left === 0 ? "✓" : left}</span>` : "";
-    cells += `<button class="${cls.join(" ")}" data-action="select-day" data-date="${iso}"><span class="num">${d.getDate()}</span>${badge}</button>`;
+    // 全員表示のときは、残りタスクがある人の色を点で示す
+    const dots = ui.filter === "all"
+      ? data.members.filter(mem => list.some(x => !x.task.done && x.task.assignee === mem.id))
+          .map(mem => `<span class="dot" style="--c:${mem.color}"></span>`).join("")
+      : "";
+    cells += `<button class="${cls.join(" ")}" data-action="select-day" data-date="${iso}"><span class="num">${d.getDate()}</span>${badge}${dots ? `<span class="dots">${dots}</span>` : ""}</button>`;
   }
 
   const dayList = byDate[ui.selected] || [];
@@ -348,7 +426,9 @@ function renderCalendar() {
       <h3 class="day-title">未割り当て（${unscheduled.length}）</h3>
       ${unscheduled.map(x => taskRow(x)).join("")}
     </div>` : ""}
-    ${tasks.length ? "" : `<div class="card empty">まずは「場所・タスク」タブで掃除する場所とタスクを登録しましょう。</div>`}
+    ${tasks.length ? "" : `<div class="card empty">${ui.filter === "all"
+      ? "まずは「場所・タスク」タブで掃除する場所とタスクを登録しましょう。"
+      : `${esc(filterLabel())}のタスクはまだありません。`}</div>`}
   `;
 }
 
@@ -402,7 +482,36 @@ function renderPlaces() {
 
 function renderSettings() {
   const el = document.getElementById("view-settings");
+  const tasks = allTasks().map(x => x.task);
+  const progress = pred => {
+    const mine = tasks.filter(pred);
+    return `${mine.filter(t => t.done).length} / ${mine.length}`;
+  };
   el.innerHTML = `
+    <div class="card settings">
+      <h3 class="day-title">メンバー（${data.members.length} / ${MAX_MEMBERS}人）</h3>
+      <p>大掃除を分担する人を登録すると、タスクごとに担当を決められます。カレンダーでは人ごとに絞り込めます。</p>
+      ${data.members.map(m => `
+        <div class="member">
+          <span class="dot" style="--c:${m.color}"></span>
+          <span class="name">${esc(m.name)}</span>
+          <span class="count">${progress(t => t.assignee === m.id)}</span>
+          <button class="mini-btn" data-action="rename-member" data-id="${m.id}">名前</button>
+          <button class="mini-btn del" data-action="delete-member" data-id="${m.id}" aria-label="削除">✕</button>
+        </div>`).join("")}
+      ${data.members.length ? `
+        <div class="member">
+          <span class="dot" style="--c:var(--line)"></span>
+          <span class="name">担当なし</span>
+          <span class="count">${progress(t => !findMember(t.assignee))}</span>
+        </div>` : ""}
+      ${data.members.length < MAX_MEMBERS ? `
+        <form class="add" data-action="add-member">
+          <input name="name" placeholder="名前を追加（例：パパ）" autocomplete="off" required>
+          <button>追加</button>
+        </form>` : ""}
+    </div>
+
     <div class="card settings">
       <h3 class="day-title">バックアップ</h3>
       <p>データはこの端末のブラウザ内に保存されています。機種変更や別の端末に移すときは、書き出したファイルを読み込んでください。</p>
@@ -472,6 +581,23 @@ document.addEventListener("click", e => {
       spot.tasks = spot.tasks.filter(x => x !== task);
       return commit();
     }
+    case "filter":
+      ui.filter = t.dataset.value;
+      try { localStorage.setItem(FILTER_KEY, ui.filter); } catch (err) {}
+      return render();
+    case "rename-member": {
+      const member = findMember(id);
+      const name = ask("新しい名前", member.name);
+      if (name) { member.name = name; commit(); }
+      return;
+    }
+    case "delete-member": {
+      const member = findMember(id);
+      if (!confirm(`「${member.name}」を削除しますか？担当していたタスクは「担当なし」になります。`)) return;
+      data.members = data.members.filter(m => m !== member);
+      for (const x of allTasks()) if (x.task.assignee === id) x.task.assignee = null;
+      return commit();
+    }
     case "export": return exportData();
     case "import": return document.getElementById("import-file").click();
   }
@@ -485,6 +611,9 @@ document.addEventListener("change", e => {
     commit();
   } else if (action === "date") {
     findTask(id).task.date = t.value || null;
+    commit();
+  } else if (action === "assignee") {
+    findTask(id).task.assignee = t.value || null;
     commit();
   } else if (action === "assign" && t.value) {
     findTask(t.value).task.date = ui.selected;
@@ -510,7 +639,12 @@ document.addEventListener("submit", e => {
     findPlace(id).spots.push(spot);
     ui.open.add(id).add(spot.id);
   } else if (action === "add-task") {
-    findSpot(id).spot.tasks.push({ id: uid(), name, date: null, done: false });
+    findSpot(id).spot.tasks.push({ id: uid(), name, date: null, done: false, assignee: null });
+  } else if (action === "add-member") {
+    if (data.members.length >= MAX_MEMBERS) return;
+    const used = new Set(data.members.map(m => m.color));
+    const color = MEMBER_COLORS.find(c => !used.has(c)) || MEMBER_COLORS[0];
+    data.members.push({ id: uid(), name, color });
   }
   commit();
   // 続けて入力できるよう同じフォームにフォーカスを戻す
@@ -546,7 +680,7 @@ function importData(file) {
       const parsed = JSON.parse(reader.result);
       if (!Array.isArray(parsed.places)) throw new Error("format");
       if (!confirm("現在のデータを読み込んだデータで置き換えます。よろしいですか？")) return;
-      data = parsed;
+      data = normalize(parsed);
       commit();
       alert("読み込みました。");
     } catch (e) {
