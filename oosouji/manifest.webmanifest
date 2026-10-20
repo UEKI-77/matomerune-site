@@ -1,0 +1,16 @@
+{
+  "name": "大掃除カレンダー",
+  "short_name": "大掃除",
+  "description": "年末までに大掃除を終わらせるための、場所とタスクを管理するカレンダー。",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#EEF5F9",
+  "theme_color": "#3D8BB8",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

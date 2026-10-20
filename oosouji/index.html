@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>大掃除カレンダー</title>
+<meta name="description" content="年末までに大掃除を終わらせるための、場所とタスクを管理するカレンダー。">
+<meta name="theme-color" content="#3D8BB8">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<style>
+  :root {
+    --bg: #EEF5F9;
+    --card: #FFFFFF;
+    --ink: #1E2A32;
+    --ink-soft: #5B6B75;
+    --ink-faint: #93A2AB;
+    --accent: #3D8BB8;
+    --accent-soft: rgba(61, 139, 184, 0.12);
+    --done: #3FA37A;
+    --done-soft: rgba(63, 163, 122, 0.14);
+    --danger: #D2555A;
+    --line: #DCE7EE;
+    --shadow: rgba(30, 42, 50, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12191E;
+      --card: #1B252C;
+      --ink: #E6EEF2;
+      --ink-soft: #A9B8C1;
+      --ink-faint: #6E7F89;
+      --accent: #6FB5DD;
+      --accent-soft: rgba(111, 181, 221, 0.16);
+      --done: #5CC79A;
+      --done-soft: rgba(92, 199, 154, 0.16);
+      --danger: #F07A7E;
+      --line: #2A3740;
+      --shadow: rgba(0, 0, 0, 0.3);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Zen Maru Gothic", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  }
+  button, input, select { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--bg);
+    padding: 12px 16px 8px;
+    display: flex; align-items: baseline; gap: 12px;
+  }
+  header h1 { font-size: 20px; margin: 0; }
+  header .summary { color: var(--ink-soft); font-size: 14px; margin-left: auto; }
+
+  main { max-width: 720px; margin: 0 auto; padding: 0 16px; }
+
+  nav.tabs {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+    display: flex; background: var(--card);
+    border-top: 1px solid var(--line);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  nav.tabs button {
+    flex: 1; border: 0; background: none; padding: 14px 0;
+    color: var(--ink-faint); font-weight: 700;
+  }
+  nav.tabs button[aria-selected="true"] { color: var(--accent); }
+
+  .card {
+    background: var(--card); border-radius: 14px;
+    box-shadow: 0 1px 3px var(--shadow);
+    padding: 12px; margin-bottom: 12px;
+  }
+
+  /* カレンダー */
+  .cal-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .cal-head h2 { font-size: 18px; margin: 0; flex: 1; text-align: center; }
+  .icon-btn {
+    border: 0; background: var(--accent-soft); color: var(--accent);
+    width: 40px; height: 40px; border-radius: 10px; font-size: 18px; font-weight: 700;
+  }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-dow { text-align: center; font-size: 12px; color: var(--ink-faint); padding: 2px 0; }
+  .cal-dow.sun { color: var(--danger); }
+  .cal-dow.sat { color: var(--accent); }
+  .cal-day {
+    aspect-ratio: 1 / 1.05; border: 1px solid transparent; border-radius: 10px;
+    background: var(--bg); padding: 4px 2px;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    min-width: 0;
+  }
+  .cal-day.other { opacity: 0.35; }
+  .cal-day.today .num { background: var(--accent); color: #fff; border-radius: 999px; padding: 0 6px; }
+  .cal-day.selected { border-color: var(--accent); background: var(--accent-soft); }
+  .cal-day .num { font-size: 14px; font-weight: 700; }
+  .cal-day .badge {
+    font-size: 11px; border-radius: 999px; padding: 0 6px;
+    background: var(--accent-soft); color: var(--accent); font-weight: 700;
+  }
+  .cal-day .badge.all-done { background: var(--done-soft); color: var(--done); }
+
+  .day-title { font-size: 16px; margin: 4px 0 8px; }
+
+  /* タスク行 */
+  .task {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-top: 1px solid var(--line);
+  }
+  .task:first-child { border-top: 0; }
+  .task input[type="checkbox"] { width: 24px; height: 24px; accent-color: var(--done); flex: none; }
+  .task .label { flex: 1; min-width: 0; }
+  .task .path { display: block; font-size: 12px; color: var(--ink-soft); }
+  .task.done .name { text-decoration: line-through; color: var(--ink-faint); }
+  .task input[type="date"] {
+    border: 1px solid var(--line); border-radius: 8px; background: var(--bg);
+    padding: 4px 6px; font-size: 14px; max-width: 140px;
+  }
+  .empty { color: var(--ink-faint); font-size: 14px; padding: 8px 0; }
+
+  /* 場所リスト */
+  .place > summary, .spot > summary {
+    list-style: none; display: flex; align-items: center; gap: 8px; cursor: pointer;
+  }
+  .place > summary::-webkit-details-marker, .spot > summary::-webkit-details-marker { display: none; }
+  .place > summary { font-size: 17px; font-weight: 700; }
+  .place > summary::before, .spot > summary::before {
+    content: "▸"; color: var(--ink-faint); transition: transform .15s;
+  }
+  .place[open] > summary::before, .spot[open] > summary::before { transform: rotate(90deg); }
+  .place > summary .count, .spot > summary .count { color: var(--ink-soft); font-size: 13px; font-weight: 500; margin-left: auto; }
+  .spot { margin: 8px 0 0 12px; padding-left: 10px; border-left: 2px solid var(--line); }
+  .spot > summary { font-weight: 700; padding: 4px 0; }
+  .spot .tasks { margin-left: 4px; }
+  .mini-btn {
+    border: 0; background: none; color: var(--ink-faint);
+    padding: 4px 6px; font-size: 13px; border-radius: 6px;
+  }
+  .mini-btn:hover { background: var(--accent-soft); color: var(--accent); }
+  .mini-btn.del:hover { background: none; color: var(--danger); }
+
+  form.add { display: flex; gap: 8px; margin-top: 8px; }
+  form.add input {
+    flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--bg); padding: 8px 10px;
+  }
+  form.add button, .btn {
+    border: 0; border-radius: 10px; background: var(--accent); color: #fff;
+    padding: 8px 14px; font-weight: 700; white-space: nowrap;
+  }
+  .btn.ghost { background: var(--accent-soft); color: var(--accent); }
+
+  select.assign {
+    width: 100%; margin-top: 8px; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--bg); padding: 8px 10px;
+  }
+
+  .settings p { color: var(--ink-soft); font-size: 14px; margin: 0 0 8px; }
+  .settings .row { display: flex; flex-wrap: wrap; gap: 8px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <h1>大掃除カレンダー</h1>
+  <span class="summary" id="summary"></span>
+</header>
+
+<main>
+  <section id="view-calendar"></section>
+  <section id="view-places" hidden></section>
+  <section id="view-settings" hidden></section>
+</main>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" data-view="calendar" aria-selected="true">カレンダー</button>
+  <button role="tab" data-view="places" aria-selected="false">場所・タスク</button>
+  <button role="tab" data-view="settings" aria-selected="false">設定</button>
+</nav>
+
+<script>
+"use strict";
+
+// ---- データ ----
+// { version, places: [{ id, name, spots: [{ id, name, tasks: [{ id, name, date, done }] }] }] }
+const STORAGE_KEY = "oosouji:v1";
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return { version: 1, places: [] };
+}
+
+function saveData() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (e) {
+    alert("保存に失敗しました。ブラウザの保存領域を確認してください。");
+  }
+}
+
+let data = loadData();
+
+const ui = {
+  view: "calendar",
+  month: firstOfMonth(new Date()),
+  selected: toISO(new Date()),
+  open: new Set(),  // 開いている場所・箇所のid
+};
+
+// ---- 日付ユーティリティ ----
+function toISO(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+function firstOfMonth(d) { return new Date(d.getFullYear(), d.getMonth(), 1); }
+function formatDay(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  const dow = "日月火水木金土"[new Date(y, m - 1, d).getDay()];
+  return `${m}月${d}日（${dow}）`;
+}
+
+// ---- 検索ヘルパー ----
+function allTasks() {
+  const out = [];
+  for (const place of data.places)
+    for (const spot of place.spots)
+      for (const task of spot.tasks)
+        out.push({ place, spot, task });
+  return out;
+}
+function findTask(id) { return allTasks().find(x => x.task.id === id); }
+function findPlace(id) { return data.places.find(p => p.id === id); }
+function findSpot(id) {
+  for (const place of data.places) {
+    const spot = place.spots.find(s => s.id === id);
+    if (spot) return { place, spot };
+  }
+}
+
+// ---- 描画 ----
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function render() {
+  const tasks = allTasks();
+  const done = tasks.filter(x => x.task.done).length;
+  document.getElementById("summary").textContent = tasks.length ? `完了 ${done} / ${tasks.length}` : "";
+
+  for (const btn of document.querySelectorAll("nav.tabs button"))
+    btn.setAttribute("aria-selected", btn.dataset.view === ui.view);
+  for (const v of ["calendar", "places", "settings"])
+    document.getElementById("view-" + v).hidden = ui.view !== v;
+
+  if (ui.view === "calendar") renderCalendar();
+  if (ui.view === "places") renderPlaces();
+  if (ui.view === "settings") renderSettings();
+}
+
+function taskRow({ place, spot, task }, { showPath = true, showDate = true } = {}) {
+  return `
+    <div class="task ${task.done ? "done" : ""}">
+      <input type="checkbox" data-action="toggle" data-id="${task.id}" ${task.done ? "checked" : ""} aria-label="完了">
+      <span class="label">
+        ${showPath ? `<span class="path">${esc(place.name)} / ${esc(spot.name)}</span>` : ""}
+        <span class="name">${esc(task.name)}</span>
+      </span>
+      ${showDate ? `<input type="date" data-action="date" data-id="${task.id}" value="${task.date || ""}" aria-label="日付">` : ""}
+      ${showPath ? "" : `<button class="mini-btn" data-action="rename-task" data-id="${task.id}">名前</button>
+      <button class="mini-btn del" data-action="delete-task" data-id="${task.id}" aria-label="削除">✕</button>`}
+    </div>`;
+}
+
+function renderCalendar() {
+  const el = document.getElementById("view-calendar");
+  const tasks = allTasks();
+  const byDate = {};
+  for (const x of tasks) if (x.task.date) (byDate[x.task.date] ||= []).push(x);
+
+  const m = ui.month;
+  const start = new Date(m.getFullYear(), m.getMonth(), 1 - m.getDay());
+  const todayISO = toISO(new Date());
+  let cells = "";
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+    if (i === 35 && d.getMonth() !== m.getMonth()) break;
+    const iso = toISO(d);
+    const list = byDate[iso] || [];
+    const left = list.filter(x => !x.task.done).length;
+    const cls = ["cal-day"];
+    if (d.getMonth() !== m.getMonth()) cls.push("other");
+    if (iso === todayISO) cls.push("today");
+    if (iso === ui.selected) cls.push("selected");
+    const badge = list.length
+      ? `<span class="badge ${left === 0 ? "all-done" : ""}">${left === 0 ? "✓" : left}</span>` : "";
+    cells += `<button class="${cls.join(" ")}" data-action="select-day" data-date="${iso}"><span class="num">${d.getDate()}</span>${badge}</button>`;
+  }
+
+  const dayList = byDate[ui.selected] || [];
+  const unscheduled = tasks.filter(x => !x.task.date && !x.task.done);
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="cal-head">
+        <button class="icon-btn" data-action="prev-month" aria-label="前の月">‹</button>
+        <h2>${m.getFullYear()}年${m.getMonth() + 1}月</h2>
+        <button class="icon-btn" data-action="next-month" aria-label="次の月">›</button>
+      </div>
+      <div class="cal-grid">
+        ${"日月火水木金土".split("").map((w, i) => `<div class="cal-dow ${i === 0 ? "sun" : i === 6 ? "sat" : ""}">${w}</div>`).join("")}
+        ${cells}
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="day-title">${formatDay(ui.selected)}</h3>
+      ${dayList.length ? dayList.map(x => taskRow(x)).join("") : `<div class="empty">この日のタスクはありません</div>`}
+      ${unscheduled.length ? `
+        <select class="assign" data-action="assign">
+          <option value="">＋ 未割り当てのタスクをこの日に追加（${unscheduled.length}件）</option>
+          ${unscheduled.map(x => `<option value="${x.task.id}">${esc(x.place.name)} / ${esc(x.spot.name)} - ${esc(x.task.name)}</option>`).join("")}
+        </select>` : ""}
+    </div>
+
+    ${unscheduled.length ? `
+    <div class="card">
+      <h3 class="day-title">未割り当て（${unscheduled.length}）</h3>
+      ${unscheduled.map(x => taskRow(x)).join("")}
+    </div>` : ""}
+    ${tasks.length ? "" : `<div class="card empty">まずは「場所・タスク」タブで掃除する場所とタスクを登録しましょう。</div>`}
+  `;
+}
+
+function renderPlaces() {
+  const el = document.getElementById("view-places");
+  const count = arr => {
+    const d = arr.filter(t => t.done).length;
+    return `${d}/${arr.length}`;
+  };
+  el.innerHTML = `
+    ${data.places.map(place => {
+      const placeTasks = place.spots.flatMap(s => s.tasks);
+      return `
+      <details class="card place" data-id="${place.id}" ${ui.open.has(place.id) ? "open" : ""}>
+        <summary>
+          <span>${esc(place.name)}</span>
+          <span class="count">${count(placeTasks)}</span>
+          <button class="mini-btn" data-action="rename-place" data-id="${place.id}">名前</button>
+          <button class="mini-btn del" data-action="delete-place" data-id="${place.id}" aria-label="削除">✕</button>
+        </summary>
+        ${place.spots.map(spot => `
+          <details class="spot" data-id="${spot.id}" ${ui.open.has(spot.id) ? "open" : ""}>
+            <summary>
+              <span>${esc(spot.name)}</span>
+              <span class="count">${count(spot.tasks)}</span>
+              <button class="mini-btn" data-action="rename-spot" data-id="${spot.id}">名前</button>
+              <button class="mini-btn del" data-action="delete-spot" data-id="${spot.id}" aria-label="削除">✕</button>
+            </summary>
+            <div class="tasks">
+              ${spot.tasks.map(task => taskRow({ place, spot, task }, { showPath: false })).join("")}
+            </div>
+            <form class="add" data-action="add-task" data-id="${spot.id}">
+              <input name="name" placeholder="タスクを追加（例：窓ふき）" autocomplete="off" required>
+              <button>追加</button>
+            </form>
+          </details>`).join("")}
+        <form class="add" data-action="add-spot" data-id="${place.id}">
+          <input name="name" placeholder="箇所を追加（例：掃き出し窓）" autocomplete="off" required>
+          <button>追加</button>
+        </form>
+      </details>`;
+    }).join("")}
+    <div class="card">
+      <form class="add" data-action="add-place">
+        <input name="name" placeholder="場所を追加（例：2階寝室）" autocomplete="off" required>
+        <button>追加</button>
+      </form>
+    </div>
+  `;
+}
+
+function renderSettings() {
+  const el = document.getElementById("view-settings");
+  el.innerHTML = `
+    <div class="card settings">
+      <h3 class="day-title">バックアップ</h3>
+      <p>データはこの端末のブラウザ内に保存されています。機種変更や別の端末に移すときは、書き出したファイルを読み込んでください。</p>
+      <div class="row">
+        <button class="btn" data-action="export">書き出し（JSON）</button>
+        <button class="btn ghost" data-action="import">読み込み</button>
+        <input type="file" id="import-file" accept="application/json,.json" hidden>
+      </div>
+    </div>
+  `;
+}
+
+// ---- 操作 ----
+function ask(message, value = "") {
+  const v = prompt(message, value);
+  return v === null ? null : v.trim() || null;
+}
+
+function commit() {
+  saveData();
+  render();
+}
+
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-action]");
+  if (!t) return;
+  const { action, id } = t.dataset;
+
+  switch (action) {
+    case "prev-month":
+      ui.month = new Date(ui.month.getFullYear(), ui.month.getMonth() - 1, 1);
+      return render();
+    case "next-month":
+      ui.month = new Date(ui.month.getFullYear(), ui.month.getMonth() + 1, 1);
+      return render();
+    case "select-day": {
+      ui.selected = t.dataset.date;
+      const [y, m] = ui.selected.split("-").map(Number);
+      ui.month = new Date(y, m - 1, 1);
+      return render();
+    }
+    case "rename-place": case "rename-spot": case "rename-task": {
+      e.preventDefault();
+      const obj = action === "rename-place" ? findPlace(id)
+        : action === "rename-spot" ? findSpot(id).spot : findTask(id).task;
+      const name = ask("新しい名前", obj.name);
+      if (name) { obj.name = name; commit(); }
+      return;
+    }
+    case "delete-place": {
+      e.preventDefault();
+      const place = findPlace(id);
+      if (!confirm(`「${place.name}」と中の箇所・タスクをすべて削除しますか？`)) return;
+      data.places = data.places.filter(p => p !== place);
+      return commit();
+    }
+    case "delete-spot": {
+      e.preventDefault();
+      const { place, spot } = findSpot(id);
+      if (!confirm(`「${spot.name}」と中のタスクをすべて削除しますか？`)) return;
+      place.spots = place.spots.filter(s => s !== spot);
+      return commit();
+    }
+    case "delete-task": {
+      const { spot, task } = findTask(id);
+      if (!confirm(`「${task.name}」を削除しますか？`)) return;
+      spot.tasks = spot.tasks.filter(x => x !== task);
+      return commit();
+    }
+    case "export": return exportData();
+    case "import": return document.getElementById("import-file").click();
+  }
+});
+
+document.addEventListener("change", e => {
+  const t = e.target;
+  const { action, id } = t.dataset;
+  if (action === "toggle") {
+    findTask(id).task.done = t.checked;
+    commit();
+  } else if (action === "date") {
+    findTask(id).task.date = t.value || null;
+    commit();
+  } else if (action === "assign" && t.value) {
+    findTask(t.value).task.date = ui.selected;
+    commit();
+  } else if (t.id === "import-file" && t.files[0]) {
+    importData(t.files[0]);
+  }
+});
+
+document.addEventListener("submit", e => {
+  const form = e.target.closest("form[data-action]");
+  if (!form) return;
+  e.preventDefault();
+  const name = form.elements.name.value.trim();
+  if (!name) return;
+  const { action, id } = form.dataset;
+  if (action === "add-place") {
+    const place = { id: uid(), name, spots: [] };
+    data.places.push(place);
+    ui.open.add(place.id);
+  } else if (action === "add-spot") {
+    const spot = { id: uid(), name, tasks: [] };
+    findPlace(id).spots.push(spot);
+    ui.open.add(id).add(spot.id);
+  } else if (action === "add-task") {
+    findSpot(id).spot.tasks.push({ id: uid(), name, date: null, done: false });
+  }
+  commit();
+  // 続けて入力できるよう同じフォームにフォーカスを戻す
+  const sel = `form[data-action="${action}"]` + (id ? `[data-id="${id}"]` : "");
+  document.querySelector(sel)?.elements.name.focus();
+});
+
+// 開閉状態を覚えておく（再描画で閉じないように）
+document.addEventListener("toggle", e => {
+  const d = e.target;
+  if (!(d instanceof HTMLDetailsElement) || !d.dataset.id) return;
+  if (d.open) ui.open.add(d.dataset.id); else ui.open.delete(d.dataset.id);
+}, true);
+
+for (const btn of document.querySelectorAll("nav.tabs button")) {
+  btn.addEventListener("click", () => { ui.view = btn.dataset.view; render(); });
+}
+
+// ---- バックアップ ----
+function exportData() {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `oosouji-${toISO(new Date())}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function importData(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(reader.result);
+      if (!Array.isArray(parsed.places)) throw new Error("format");
+      if (!confirm("現在のデータを読み込んだデータで置き換えます。よろしいですか？")) return;
+      data = parsed;
+      commit();
+      alert("読み込みました。");
+    } catch (e) {
+      alert("ファイルを読み込めませんでした。書き出したJSONファイルを選んでください。");
+    }
+  };
+  reader.readAsText(file);
+}
+
+render();
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>
