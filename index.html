@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>まとめてレシピ ー マトメルネ</title>
 <meta name="description" content="レシピを3タップで保存・整理できるアプリ「まとめてレシピ」の公式サイト。">
+<link rel="icon" href="logo-small.webp" type="image/webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Caveat:wght@600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap">
 <style>
   :root {
     --paper: #F6BCB8;
@@ -41,19 +42,32 @@
     }
   }
 
+  :root[data-theme="dark"] {
+    --paper: #1F1613;
+    --paper-raised: #2A1E1B;
+    --ink: #F7E9E4;
+    --ink-soft: #D2B7B0;
+    --ink-faint: #9C8380;
+    --accent: #FF9A8E;
+    --accent-2: #FF7086;
+    --accent-soft: rgba(255, 154, 142, 0.16);
+    --accent-soft-strong: rgba(255, 154, 142, 0.24);
+    --line: #3D2C27;
+    --line-strong: #4E3830;
+    --shadow: rgba(0, 0, 0, 0.35);
+  }
+
   * { box-sizing: border-box; }
 
   body {
     margin: 0;
     background: var(--paper);
     color: var(--ink);
-    font-family: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", sans-serif;
+    font-family: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif;
     line-height: 1.65;
     -webkit-font-smoothing: antialiased;
     padding: 0 20px;
   }
-
-  img { max-width: 100%; }
 
   .wrap { max-width: 760px; margin: 0 auto; }
 
@@ -65,7 +79,7 @@
   }
 
   .script {
-    font-family: "Caveat", cursive;
+    font-family: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif;
     font-weight: 700;
   }
 
@@ -73,7 +87,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5em;
-    font-family: "JetBrains Mono", monospace;
+    font-family: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif;
     font-size: 0.72rem;
     letter-spacing: 0.1em;
     color: var(--accent-2);
@@ -162,7 +176,7 @@
 
   .hero-lead {
     font-size: clamp(0.95rem, 2.2vw, 1.1rem);
-    color: var(--ink-soft);
+    color: #737373;
     font-weight: 500;
   }
 
@@ -170,13 +184,14 @@
     font-size: clamp(1.6rem, 4.6vw, 2.3rem);
     font-weight: 900;
     line-height: 1.25;
+    color: #5d260f;
   }
 
   .hero h1 .hi { color: var(--accent-2); }
 
   .hero-tagline {
     font-size: clamp(0.92rem, 2vw, 1.05rem);
-    color: var(--ink);
+    color: #737373;
     font-weight: 700;
   }
 
@@ -289,7 +304,7 @@
   }
 
   .step-num {
-    font-family: "Caveat", cursive;
+    font-family: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif;
     font-weight: 700;
     font-size: 1.9rem;
     line-height: 1;
@@ -346,7 +361,7 @@
   }
 
   .status-band .label {
-    font-family: "JetBrains Mono", monospace;
+    font-family: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif;
     font-size: 0.68rem;
     letter-spacing: 0.08em;
     color: var(--accent-2);
@@ -388,7 +403,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .hero-icon, .hero-mascot { animation: none; }
+    .hero-icon { animation: none; }
   }
 
   @media (max-width: 640px) {
@@ -402,7 +417,7 @@
 
   <header class="site">
     <a class="brandmark" href="#top">
-      <img src="icon.webp" alt="マトメルネ">
+      <img src="logo-small.webp" alt="マトメルネ">
       マトメルネ
     </a>
     <nav class="site">
@@ -413,11 +428,11 @@
 
   <section class="hero" id="top">
     <div class="hero-glow" aria-hidden="true"></div>
-    <span class="eyebrow">Android版 開発中</span>
-    <img class="hero-mascot" src="meruru.png" alt="めるる">
+    <span class="eyebrow">Android版 クローズドテスト中</span>
+    <img class="hero-mascot" src="mascot.webp" alt="めるる">
     <p class="hero-lead">あの美味しそうなレシピ、<br>結局どこに保存したっけ?</p>
     <h1>まとめて<span class="hi">レシピ</span></h1>
-    <p class="hero-tagline"><span class="script">3</span>タップで、レシピが迷子にならない。</p>
+    <p class="hero-tagline"><span class="script">3</span>タップで迷子から卒業</p>
     <p class="hero-sub">SNSで見つけた、動画で見た、ブログで読んだ ― 気になったレシピをその場で保存。もう、あとから探し回らなくていい。</p>
     <div class="cta-row">
       <a class="btn btn-primary" href="https://x.com/matomerune_app">
@@ -430,8 +445,7 @@
 
   <section>
     <div class="section-head">
-    <h2>レシピ迷子から卒業</h2>
-      
+      <h2>レシピ迷子から卒業</h2>
     </div>
     <ul class="problem-list">
       <li>
@@ -447,7 +461,7 @@
         ブログで読んだ、お気に入りのレシピ
       </li>
     </ul>
-    <p class="problem-close">あちこち探す<span class="script">ストレス</span>からさようなら</p>
+    <p class="problem-close">あちこち探す<span class="script">ストレス</span>からさようなら。</p>
   </section>
 
   <section>
@@ -505,7 +519,7 @@
     <div class="status-band">
       <div>
         <span class="label">Status</span>
-        <p>現在Android版を開発中です。公開時期は下記アカウントでお知らせします。</p>
+        <p>現在、Android版をクローズドテスト中です。製品版の公開時期は、下記アカウントでお知らせします。</p>
       </div>
       <a class="btn btn-primary" href="https://x.com/matomerune_app">@matomerune_app をフォロー</a>
     </div>
@@ -514,25 +528,40 @@
   <section id="privacy">
     <div class="privacy-card">
       <h2>プライバシーポリシー</h2>
-      <p>屋号「マトメルネ」(以下「当方」といいます)は、当方が提供するアプリケーション(以下「本アプリ」といいます)における、ユーザーの個人情報の取り扱いについて、以下のとおりプライバシーポリシー(以下「本ポリシー」といいます)を定めます。</p>
+      <p>屋号「マトメルネ」(以下「当方」といいます)は、当方が提供するアプリケーション「まとめてレシピ」(以下「本アプリ」といいます)における、ユーザーの情報の取り扱いについて、以下のとおりプライバシーポリシー(以下「本ポリシー」といいます)を定めます。</p>
+      <p><a href="https://docs.google.com/document/d/e/2PACX-1vQzajL2UE9-tSriiuwvRpShE-7tLgsLmFtqG1lMJbyJBp00-6twT4ABfVCEoDqwlFEI-ZxUA6iDHEoU/pub" style="color:var(--accent-2);">このページの単独表示(公開URL)</a></p>
 
-      <h3>1. 収集する情報</h3>
-      <p>本アプリは、現時点でユーザーの個人を特定できる情報を外部サーバーに送信・収集していません。ユーザーが本アプリ内で作成・保存するレシピ等のデータは、お使いの端末内にのみ保存されます。</p>
+      <h3>1. 当方が収集する情報</h3>
+      <p>本アプリは、アカウント登録を必要としません。また、当方は、本アプリを通じてユーザーの個人情報を当方のサーバーに送信・収集・保管することはありません。</p>
+      <p>ユーザーが本アプリ内で作成・保存するレシピのタイトル、リンク(URL)、材料・手順・メモ、タグ、フォルダ、サムネイル画像、添付したスクリーンショット(スクショ)などのデータは、お使いの端末内にのみ保存されます。</p>
 
-      <h3>2. 広告・分析ツールについて</h3>
-      <p>本アプリは、現時点で第三者配信の広告および利用状況の分析ツールを使用していません。将来的にこれらを導入する場合は、本ポリシーを改定のうえ、本アプリ内でお知らせします。</p>
+      <h3>2. 外部サービスとの通信について</h3>
+      <p>本アプリは、次の機能を使用する際に、外部のサービスと通信します。これらの通信には、各サービス提供者のプライバシーポリシーが適用されます。</p>
+      <h4 style="font-size:0.86rem;font-weight:700;margin:0.7rem 0 0.3rem;">(1) サムネイル画像・タイトルの取得(YouTube)</h4>
+      <p>YouTubeのリンクを保存する際、そのリンクのURLを、YouTubeが公式に提供する情報取得の仕組み(oEmbed)に送信し、動画のタイトルとサムネイル画像のアドレスを取得します。また、サムネイル画像を表示するため、YouTubeの画像配信サーバーから画像を読み込みます(その際、お使いの端末のIPアドレス等が、通常のインターネット通信と同様に相手先に伝わります)。</p>
+      <p>TikTok、Instagram、X(旧Twitter)のリンクについては、サムネイル画像などを取得するための通信は行いません。</p>
+      <h4 style="font-size:0.86rem;font-weight:700;margin:0.7rem 0 0.3rem;">(2) 元のリンクを開く</h4>
+      <p>レシピの「元のリンクを開く」などの操作をすると、端末のブラウザまたは各SNSのアプリが起動し、そのリンク先のサービスが提供するページが表示されます。以降の取り扱いは、各サービスのプライバシーポリシーに従います。</p>
+      <h4 style="font-size:0.86rem;font-weight:700;margin:0.7rem 0 0.3rem;">(3) データのバックアップ</h4>
+      <p>ユーザーがバックアップファイル(レシピ・フォルダ・スクショをまとめたファイル)を書き出した場合、そのファイルは、ユーザー自身が選んだ保存先や共有先にのみ保存・送信されます。当方が受け取ることはありません。</p>
 
-      <h3>3. 第三者提供</h3>
-      <p>当方は、法令に基づく場合を除き、ユーザーの情報を本人の同意なく第三者に提供することはありません。</p>
+      <h3>3. 端末内の写真について</h3>
+      <p>サムネイル画像を手動で設定する場合や、レシピにスクショを添付する場合に限り、ユーザーが選択した写真を本アプリに読み込み、端末内のアプリ専用の領域に保存します。選択されていない写真にアクセスすることはありません。</p>
 
-      <h3>4. プライバシーポリシーの変更</h3>
+      <h3>4. 広告・分析ツールについて</h3>
+      <p>本アプリは、現時点で第三者配信の広告および利用状況の分析ツールを使用していません。将来これらを導入する場合は、本ポリシーを改定のうえ、本アプリ内または本ページでお知らせします。</p>
+
+      <h3>5. 第三者提供</h3>
+      <p>当方は、法令に基づく場合を除き、ユーザーの情報を本人の同意なく第三者に提供することはありません(当方は、そもそもユーザーの情報を保有していません)。</p>
+
+      <h3>6. プライバシーポリシーの変更</h3>
       <p>本ポリシーの内容は、法令その他本ポリシーに別段の定めのある事項を除いて、ユーザーに通知することなく変更することができるものとします。変更後の本ポリシーは、本ページに掲載したときから効力を生じるものとします。</p>
 
-      <h3>5. お問い合わせ窓口</h3>
+      <h3>7. お問い合わせ窓口</h3>
       <p>本ポリシーに関するお問い合わせは、下記の窓口までお願いいたします。</p>
       <p>屋号:マトメルネ<br>連絡先:info@matomerune.com</p>
 
-      <p>制定日:2026年9月9日</p>
+      <p>制定日:2026年10月10日</p>
     </div>
   </section>
 
