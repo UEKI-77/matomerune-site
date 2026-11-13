@@ -88,18 +88,20 @@
     align-items: center;
     gap: 0.5em;
     font-family: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif;
-    font-size: 0.72rem;
-    letter-spacing: 0.1em;
+    font-size: 1.08rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
     color: var(--accent-2);
-    background: var(--accent-soft);
-    border: 1px solid var(--accent-soft-strong);
+    background: var(--paper-raised);
+    border: 2px solid var(--accent-2);
     border-radius: 100px;
-    padding: 0.35rem 0.9rem;
+    padding: 0.5rem 1.3rem;
+    box-shadow: 0 8px 20px var(--shadow);
   }
 
   .eyebrow::before {
     content: "";
-    width: 6px; height: 6px;
+    width: 9px; height: 9px;
     border-radius: 50%;
     background: var(--accent);
   }
@@ -409,7 +411,30 @@
   @media (max-width: 640px) {
     .steps, .features { grid-template-columns: 1fr; }
     .status-band { flex-direction: column; align-items: flex-start; }
+
+    /* スマホでは文字を大きくする */
+    .eyebrow { font-size: min(1.08rem, 4.2vw); padding: 0.5rem 1.1rem; }
+    nav.site a { font-size: min(0.92rem, 3.5vw); margin-left: 0.8rem; }
+    .hero-lead { font-size: 1.12rem; }
+    .hero-tagline { font-size: 1.08rem; }
+    .hero-sub { font-size: min(1rem, 3.9vw); max-width: none; }
+    .btn { font-size: 1.02rem; }
+    .section-head p { font-size: 1rem; }
+    .problem-list li { font-size: 1rem; }
+    .problem-close { font-size: 1.1rem; }
+    .step h3 { font-size: 1.1rem; }
+    .step p { font-size: 0.96rem; }
+    .feature h3 { font-size: 1.06rem; }
+    .feature p { font-size: min(0.94rem, 3.65vw); }
+    .status-band .label { font-size: 0.78rem; }
+    .status-band p { font-size: 1.06rem; max-width: none; }
+    .privacy-card h2 { font-size: 1.25rem; }
+    .privacy-card h3 { font-size: 1.04rem; }
+    .privacy-card h4 { font-size: 0.98rem !important; }
+    .privacy-card p { font-size: 0.96rem; }
+    footer.site { font-size: 0.9rem; }
   }
+  .nb { display: inline-block; }
 </style>
 </head>
 <body>
@@ -498,11 +523,11 @@
     <div class="features">
       <div class="feature">
         <span class="dot"></span>
-        <div><h3>どんなサイトのレシピも一元管理</h3><p>アプリやサイトをまたいでも、保存先はひとつだけ</p></div>
+        <div><h3>どんなサイトのレシピも一元管理</h3><p><span class="nb">アプリやサイトをまたいでも、</span><span class="nb">保存先はひとつだけ</span></p></div>
       </div>
       <div class="feature">
         <span class="dot"></span>
-        <div><h3>広告なし・追跡なし</h3><p>データは端末内に保存され、外部には送信されません</p></div>
+        <div><h3>広告なし・追跡なし</h3><p><span class="nb">データは端末内に保存され、</span><span class="nb">外部には送信されません</span></p></div>
       </div>
       <div class="feature">
         <span class="dot"></span>
@@ -510,7 +535,7 @@
       </div>
       <div class="feature">
         <span class="dot"></span>
-        <div><h3>Android先行リリース</h3><p>まずはAndroid版から。iOS版は今後展開予定です</p></div>
+        <div><h3>Android先行リリース</h3><p><span class="nb">まずはAndroid版から。</span><span class="nb">iOS版は今後展開予定です</span></p></div>
       </div>
     </div>
   </section>
@@ -519,7 +544,7 @@
     <div class="status-band">
       <div>
         <span class="label">Status</span>
-        <p>Android版をGoogle Playで公開中です。<br>無料・登録なしでお使いいただけます。</p>
+        <p><span class="nb">Android版を</span><span class="nb">Google Playで公開中です。</span><br><span class="nb">無料・登録なしで</span><span class="nb">お使いいただけます。</span></p>
       </div>
       <a class="btn btn-primary" href="https://play.google.com/store/apps/details?id=com.matomerune.matomete_recipe">Google Playで見る</a>
     </div>
